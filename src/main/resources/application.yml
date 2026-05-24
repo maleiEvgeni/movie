@@ -1,0 +1,65 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: movie-search-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8180/realms/movie-app}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+movie:
+  tmdb:
+    base-url: https://api.themoviedb.org/3
+    image-base-url: https://image.tmdb.org/t/p
+    api-key: ${TMDB_API_KEY}
+    connect-timeout: 2s
+    read-timeout: 5s
+
+  youtube:
+    base-url: https://www.googleapis.com/youtube/v3
+    api-key: ${YOUTUBE_API_KEY:}
+    connect-timeout: 2s
+    read-timeout: 5s
+
+  cache:
+    search-l1-ttl: 2m
+    search-l2-ttl: 30m
+    details-l1-ttl: 10m
+    details-l2-ttl: 12h
+    trailer-l1-ttl: 15m
+    trailer-l2-ttl: 3d
+
+  resilience:
+    tmdb:
+      timeout: 5s
+      rate-limit-period: 1s
+      rate-limit-permits: 40
+      bulkhead-max-concurrent: 30
+      circuit-breaker-failure-rate-threshold: 50
+
+    youtube:
+      timeout: 5s
+      rate-limit-period: 1s
+      rate-limit-permits: 3
+      bulkhead-max-concurrent: 5
+      circuit-breaker-failure-rate-threshold: 40
